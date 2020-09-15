@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Jetpack Security Demo</string>
+    <string name="app_name">Jetpack Security - Application</string>
     <string name="shared_preferences">Shared Preferences</string>
     <string name="files">Files</string>
     <string name="enter_any_value">Enter any value</string>

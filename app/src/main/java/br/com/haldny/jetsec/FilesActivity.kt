@@ -1,14 +1,14 @@
-package com.example.jetsecdemo
+package br.com.haldny.jetsec
 
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.security.crypto.EncryptedFile
-import androidx.security.crypto.MasterKeys
+import androidx.security.crypto.MasterKey
+import com.example.jetsecdemo.R
 import kotlinx.android.synthetic.main.activity_files.*
 import java.io.*
 import java.lang.StringBuilder
-
 
 class FilesActivity : AppCompatActivity() {
 
@@ -19,9 +19,7 @@ class FilesActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_files)
-
         init()
-
         listeners()
     }
 
@@ -31,13 +29,13 @@ class FilesActivity : AppCompatActivity() {
         secretFile = File(filesDir, "secret")
 
         encryptedFile = EncryptedFile.Builder(
+            this,
             secretFile,
-            applicationContext,
-            MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC), //master key
+            MasterKey.Builder(this).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build(),
             EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB
         )
-            .setKeysetAlias("file_key") //optional
-            .setKeysetPrefName("secret_file_shared_prefs")  //optional
+            .setKeysetAlias("file_key")
+            .setKeysetPrefName("secret_file_shared_prefs")
             .build()
 
     }
@@ -78,9 +76,6 @@ class FilesActivity : AppCompatActivity() {
         }
 
         bt_save_encrypted.setOnClickListener {
-            /**
-             * Editing an already saved file throws an exception
-             */
             secretFile.delete()
 
             encryptedFile.openFileOutput().use { outputstream ->

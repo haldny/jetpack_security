@@ -1,4 +1,4 @@
-package com.example.jetsecdemo
+package br.com.haldny.jetsec
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -8,7 +8,8 @@ import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.widget.Toast
 import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKeys
+import androidx.security.crypto.MasterKey
+import com.example.jetsecdemo.R
 import kotlinx.android.synthetic.main.activity_shared_prefs.*
 
 class SharedPrefsActivity : AppCompatActivity() {
@@ -20,47 +21,40 @@ class SharedPrefsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_shared_prefs)
-
         init()
-
         listeners()
     }
 
     private fun init() {
-        /**
-         * hardcoded key =>
-         *
-         * val masterKey = "master_key"
-         */
 
-        /**
-         * recommended way for general purposes
-         */
-        val masterKey = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
+        //val masterKey = MasterKey.Builder(this, "master_key").build()
 
-        /**
-         * Custom key for more security =>
-         *
-         * val masterKey = MasterKeys.getOrCreate(
-         *     KeyGenParameterSpec.Builder(
-         *         "key_alias",
-         *         KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
-         *     ).apply {
-         *         setKeySize(256)
-         *         setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-         *         setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-         *     }.build()
-         * )
-         */
+        val masterKey = MasterKey.Builder(this).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build()
+
+/*        val keyGenParameterSpec = KeyGenParameterSpec.Builder(
+            "_androidx_security_master_key_",
+            KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
+        ).apply {
+            setKeySize(256)
+            setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+            setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+            setUserAuthenticationRequired(true)
+            setUserAuthenticationValidityDurationSeconds(5)
+        }.build()
+
+
+        val masterKey = MasterKey.Builder(this)
+            .setKeyGenParameterSpec(keyGenParameterSpec)
+            .build()*/
 
         sharedPrefs = getSharedPreferences("values", Context.MODE_PRIVATE)
 
         securedSharedPrefs = EncryptedSharedPreferences.create(
-            "values_secured",   //xml file name
-            masterKey,   //master key
-            this,   //context
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,  //key encryption technique
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM //value encryption technique
+            this,
+            "values_secured",
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
         )
 
         setUi()
@@ -84,8 +78,7 @@ class SharedPrefsActivity : AppCompatActivity() {
 
     private fun setUi() {
         tv_normal_value.text = getString(R.string.value_x, sharedPrefs.getString(savedValueKey, ""))
-        tv_encrypted_value.text =
-            getString(R.string.value_jetpack_x, securedSharedPrefs.getString(savedValueKey, ""))
+        tv_encrypted_value.text = getString(R.string.value_jetpack_x, securedSharedPrefs.getString(savedValueKey, ""))
     }
 
     private fun isSavingValid(): Boolean {

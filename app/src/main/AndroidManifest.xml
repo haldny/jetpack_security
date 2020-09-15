@@ -10,12 +10,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".FilesActivity"
+            android:name="br.com.haldny.jetsec.FilesActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".SharedPrefsActivity"
+            android:name="br.com.haldny.jetsec.SharedPrefsActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".MainActivity">
+        <activity android:name="br.com.haldny.jetsec.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
